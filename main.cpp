@@ -85,7 +85,7 @@ void turnImageToAscii(Mat *input, const char *path, const uint frame_count)
       s += chars[map(input->at<uint8_t>(i, j), 255, 0, 0, strlen(chars) - 1)];
     }
 
-    Size textSize = ft2->getTextSize(s,fontHeight,thickness,&baseline);
+    //Size textSize = ft2->getTextSize(s,fontHeight,thickness,&baseline);
     Point textOrg(1, (10 * i));    
     ft2->putText(output, s, textOrg, fontHeight, Scalar(0,255,0), thickness, linestyle, true );
   }
