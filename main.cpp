@@ -7,23 +7,8 @@
 #include <string.h>
 
 using namespace cv;
-
-#define TERM_WIDTH 280
-#define TERM_HEIGTH 101
-#define MSWAIT 5
-
-/*
-Sets the web came to the closest native resolution
-
-cap is video captur
-width is the width of the captured image
-height is the height of the captured image
-*/
-void setResolutionCam(VideoCapture *cap, const uint width, const uint height)
-{
-  cap->set(CAP_PROP_FRAME_WIDTH, width);
-  cap->set(CAP_PROP_FRAME_HEIGHT, height);
-}
+#define TERM_WIDTH 300
+#define TERM_HEIGTH 110
 
 /*
 Desaturares and resizes the image.
@@ -71,7 +56,7 @@ Each pixel maps to a single character. So when you have 80x24 char screen the in
 
 input is the rescaled, grey scale image to be mapped in ascii chars
 */
-void turnImageToAscii(Mat *input, const char *path, const uint fps_count)
+void turnImageToAscii(Mat *input, const char *path, const uint frame_count)
 {
   if (input == NULL)
     return;
@@ -89,7 +74,7 @@ void turnImageToAscii(Mat *input, const char *path, const uint fps_count)
   ft2 = cv::freetype::createFreeType2();
   ft2->loadFontData( "./ibm.ttf", 0 );
   
-  std::string sfcount = std::to_string(fps_count);
+  std::string sfcount = std::to_string(frame_count);
   padTo(sfcount, 6, '0');
   std::string p = path + std::string("/") +  sfcount + ".png";
 
@@ -105,9 +90,9 @@ void turnImageToAscii(Mat *input, const char *path, const uint fps_count)
     ft2->putText(output, s, textOrg, fontHeight, Scalar(0,255,0), thickness, linestyle, true );
   }
 
-
   if(thickness > 0)
     baseline += thickness;
+
   imwrite(p, output);
   //delete(ft2);
 }
@@ -148,7 +133,7 @@ void arguments(VideoCapture *cap, int argc, char **args)
 {
   if (argc != 3)
   {
-    std::cerr << args[0] << "<source video> <render directory>" << std::endl;
+    std::cerr << args[0] << " <source video> <render directory>" << std::endl;
     exit(1);
   }
   
@@ -181,7 +166,7 @@ int main(const int argc, char **argv)
   if (!cap.isOpened())
     return 1;
 
-  static uint fps_count = 0;
+  static uint frame_count = 0;
   while (running)
   {
     cap >> image;
@@ -195,7 +180,7 @@ int main(const int argc, char **argv)
     std::thread thread1(t_resize, &image, 320, 240);
 
     // takes the small black and white image and maps each pixel to a character and prints it to the terminal
-    std::thread thread2(turnImageToAscii, &small, argv[2], fps_count);
+    std::thread thread2(turnImageToAscii, &small, argv[2], frame_count);
 
     thread1.join();
     
@@ -207,7 +192,7 @@ int main(const int argc, char **argv)
 		if (waitKey(1) >= 0)
             break;
 
-    fps_count++;
+    frame_count++;
   }
 
   return 0;
