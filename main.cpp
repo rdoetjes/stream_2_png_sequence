@@ -191,6 +191,7 @@ int main(const int argc, char **argv)
   while (running)
   {
 
+    //spwan the maximum number of threads
     for (int i=0; i<NR_THREADS; i++){
       cap >> image[i];
       
@@ -203,6 +204,7 @@ int main(const int argc, char **argv)
       frame_count++;
     }
 
+    //wait for the threads
     for(int i=0; i<NR_THREADS; i++){
       threads[i].join();
     }
