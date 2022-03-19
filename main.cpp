@@ -187,6 +187,7 @@ int main(const int argc, char **argv)
 
   static uint frame_count = 0;
   std::thread threads[NR_THREADS];
+  int tot_frames = cap.get(CAP_PROP_FRAME_COUNT);
 
   while (running)
   {
@@ -200,7 +201,7 @@ int main(const int argc, char **argv)
 
       // takes the small black and white image and maps each pixel to a character and prints it to the terminal
       threads[i] = std::thread(turnImageToAscii, &image[i], argv[2], frame_count);
-
+      std::cout << "rendering frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::endl;
       frame_count++;
     }
 
