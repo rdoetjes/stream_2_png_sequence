@@ -188,7 +188,7 @@ int main(const int argc, char **argv)
   static uint frame_count = 0;
   std::thread threads[NR_THREADS];
   int tot_frames = cap.get(CAP_PROP_FRAME_COUNT);
-
+  int percent_done = 0;
   while (running)
   {
 
@@ -201,7 +201,8 @@ int main(const int argc, char **argv)
 
       // takes the small black and white image and maps each pixel to a character and prints it to the terminal
       threads[i] = std::thread(turnImageToAscii, &image[i], argv[2], frame_count);
-      std::cout << "\rrendering frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::flush;
+      percent_done = int(float(frame_count)/float(tot_frames) * 100);
+      std::cout << "\r" << std::to_string( percent_done ) << "% rendering frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::flush;
       frame_count++;
     }
 
