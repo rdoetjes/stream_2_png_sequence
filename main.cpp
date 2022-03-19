@@ -9,6 +9,7 @@
 using namespace cv;
 #define TERM_WIDTH 300
 #define TERM_HEIGTH 110
+#define NR_THREADS 4
 
 /*
 Desaturares and resizes the image.
@@ -62,32 +63,37 @@ Each pixel maps to a single character. So when you have 80x24 char screen the in
 
 input is the rescaled, grey scale image to be mapped in ascii chars
 */
-void turnImageToAscii(Mat *input, const char *path, const uint frame_count)
+void turnImageToAscii(Mat *image, const char *path, const uint frame_count)
 {
-  if (input == NULL)
+  if (image == NULL)
     return;
 
-  int cn = input->channels();
-  static char chars[] = "B@#W$9876543210?!abc;:+=-,._   ";
-  int fontHeight = 12;
-  int thickness = -1;
-  int linestyle = 8;
-
+  cv::Mat small(TERM_HEIGTH, TERM_WIDTH, CV_8UC3, cv::Scalar(0));
   cv::Mat output(1080, 1920, CV_8UC3, cv::Scalar(0));
- 
-  cv::Ptr<cv::freetype::FreeType2> ft2;
-  ft2 = cv::freetype::createFreeType2();
-  ft2->loadFontData( "./ibm.ttf", 0 );
+
+  imageDesatAndResize(image, &small, TERM_WIDTH, TERM_HEIGTH);
   
+  int cn = small.channels();
+  static char chars[] = "B@#W$9876543210?!abc;:+=-,._   ";
+
   std::string sfcount = std::to_string(frame_count);
   padTo(sfcount, 6, '0');
   std::string p = path + std::string("/") +  sfcount + ".png";
 
-  for (int i = 0; i < input->rows; i++)
+  int fontHeight = 12;
+  int thickness = -1;
+  int linestyle = 8;
+  int baseline = 0;
+  cv::Ptr<cv::freetype::FreeType2> ft2;
+  ft2 = cv::freetype::createFreeType2();
+  ft2->loadFontData( "./ibm.ttf", 0 );
+  std::string s = "";
+
+  for (int i = 0; i < small.rows; i++)
   {
-    std::string s = "";
-    for (int j = 0; j < input->cols; j++){
-      s += chars[map(input->at<uint8_t>(i, j), 255, 0, 0, strlen(chars) - 1)];
+    s = "";
+    for (int j = 0; j < small.cols; j++){
+      s += chars[map(small.at<uint8_t>(i, j), 255, 0, 0, strlen(chars) - 1)];
     }
 
     //Size textSize = ft2->getTextSize(s,fontHeight,thickness,&baseline);
@@ -170,7 +176,7 @@ We require <render directory> where the PNG sequence will be stored
 */
 int main(const int argc, char **argv)
 {
-  Mat image, small;
+  Mat image[NR_THREADS];
   bool running = true;
   VideoCapture cap;
 
@@ -180,32 +186,26 @@ int main(const int argc, char **argv)
     return 1;
 
   static uint frame_count = 0;
+  std::thread threads[NR_THREADS];
+
   while (running)
   {
-    cap >> image;
-    if (image.empty())
-      return 0;
 
-    // turns the image into a 140, 51 pixel black and white image, that will map to 140x51 chars
-    imageDesatAndResize(&image, &small, TERM_WIDTH, TERM_HEIGTH);
+    for (int i=0; i<NR_THREADS; i++){
+      cap >> image[i];
+      
+      if (image[i].empty())
+        return 0;
 
-    // resize the life feed to 320x240 to display, and capture keyboard events
-    std::thread thread1(t_resize, &image, 320, 240);
+      // takes the small black and white image and maps each pixel to a character and prints it to the terminal
+      threads[i] = std::thread(turnImageToAscii, &image[i], argv[2], frame_count);
 
-    // takes the small black and white image and maps each pixel to a character and prints it to the terminal
-    std::thread thread2(turnImageToAscii, &small, argv[2], frame_count);
+      frame_count++;
+    }
 
-    thread1.join();
-    
-    // show the web cam feed
-    cv::imshow("RAW", image);
-
-    thread2.join();
-
-		if (waitKey(1) >= 0)
-            break;
-
-    frame_count++;
+    for(int i=0; i<NR_THREADS; i++){
+      threads[i].join();
+    }
   }
 
   return 0;
