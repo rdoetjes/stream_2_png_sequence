@@ -74,7 +74,7 @@ void turnImageToAscii(Mat *image, const char *path, const uint frame_count)
   imageDesatAndResize(image, &small, TERM_WIDTH, TERM_HEIGTH);
   
   int cn = small.channels();
-  static char chars[] = "B@#W$9876543210?!abc;:+=-,._     ";
+  static char chars[] = "B@#W$9876543210?!abc;:+=-,._   ";
 
   std::string sfcount = std::to_string(frame_count);
   padTo(sfcount, 6, '0');
