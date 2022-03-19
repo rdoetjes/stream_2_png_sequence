@@ -201,7 +201,7 @@ int main(const int argc, char **argv)
 
       // takes the small black and white image and maps each pixel to a character and prints it to the terminal
       threads[i] = std::thread(turnImageToAscii, &image[i], argv[2], frame_count);
-      std::cout << "rendering frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::endl;
+      std::cout << "\rrendering frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::flush;
       frame_count++;
     }
 
