@@ -43,6 +43,12 @@ long map(int x, int in_min, int in_max, int out_min, int out_max)
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+/*
+Pad left.
+str will be padded
+num is the number of the left padding
+paddingChar is the character that needs to be padded to left
+*/
 void padTo(std::string &str, const size_t num, const char paddingChar = ' ')
 {
     if(num > str.size())
@@ -66,7 +72,6 @@ void turnImageToAscii(Mat *input, const char *path, const uint frame_count)
   int fontHeight = 12;
   int thickness = -1;
   int linestyle = 8;
-  int baseline=0;
 
   cv::Mat output(1080, 1920, CV_8UC3, cv::Scalar(0));
  
@@ -86,12 +91,10 @@ void turnImageToAscii(Mat *input, const char *path, const uint frame_count)
     }
 
     //Size textSize = ft2->getTextSize(s,fontHeight,thickness,&baseline);
+    //std::cout << std::to_string(textSize.height) << std::endl;
     Point textOrg(1, (10 * i));    
     ft2->putText(output, s, textOrg, fontHeight, Scalar(0,255,0), thickness, linestyle, true );
   }
-
-  if(thickness > 0)
-    baseline += thickness;
 
   imwrite(p, output);
   //delete(ft2);
@@ -129,6 +132,11 @@ int dir_exits(const char *path){
     return ( info.st_mode & S_IFDIR ) ? 1 : 0;
 }
 
+/*
+Check the input arguments.
+We require <source video> which is the video you want to convert into ascii
+We require <render directory> where the PNG sequence will be stored
+*/
 void arguments(VideoCapture *cap, int argc, char **args)
 {
   if (argc != 3)
@@ -155,6 +163,11 @@ void arguments(VideoCapture *cap, int argc, char **args)
   }
 }
 
+/*
+Check the input arguments.
+We require <source video> which is the video you want to convert into ascii
+We require <render directory> where the PNG sequence will be stored
+*/
 int main(const int argc, char **argv)
 {
   Mat image, small;
