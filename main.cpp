@@ -206,10 +206,11 @@ int main(const int argc, char **argv)
       frame_count++;
     }
 
-    //wait for the threads
-    for(int i=0; i<NR_THREADS; i++){
+    //wait for the threads to stop before spawning next block.
+    //This is not super efficient, because some threads in the block can already be finished
+    //But for now it does the trick nicely
+    for(int i=0; i<NR_THREADS; i++)
       threads[i].join();
-    }
   }
 
   return 0;
