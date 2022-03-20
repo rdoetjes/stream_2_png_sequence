@@ -73,7 +73,6 @@ void turnImageToAscii(Mat *image, const char *path, const uint frame_count)
 
   imageDesatAndResize(image, &small, TERM_WIDTH, TERM_HEIGTH);
   
-  int cn = small.channels();
   static char chars[] = "B@#W$9876543210?!abc;:+=-,._   ";
 
   std::string sfcount = std::to_string(frame_count);
@@ -84,6 +83,7 @@ void turnImageToAscii(Mat *image, const char *path, const uint frame_count)
   int thickness = -1;
   int linestyle = 8;
   int baseline = 0;
+
   cv::Ptr<cv::freetype::FreeType2> ft2;
   ft2 = cv::freetype::createFreeType2();
   ft2->loadFontData( "./ibm.ttf", 0 );
@@ -190,7 +190,6 @@ int main(const int argc, char **argv)
   int percent_done = 0;
   while (1)
   {
-
     //spwan the maximum number of threads
     for (int i=0; i<NR_THREADS; i++){
       cap >> image[i];
