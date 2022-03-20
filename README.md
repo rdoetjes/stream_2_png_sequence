@@ -19,6 +19,8 @@ mkdir build
 cd build
 cmake ..
 make
+
+copy the ascii binary and the ibm.ttf, whereever you want it to live. The ibm.ttf font is expected to live in the same directory.
 ```
 
 # Running
