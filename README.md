@@ -1,4 +1,6 @@
-# webcam_2_ascii
+# stream_2_png_sequence
+
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/5H2aLGLSEv4/0.jpg)]
 
 Build on mac with homebrew OpenCV requires clang
 
@@ -6,7 +8,7 @@ export CXX=/usr/bin/clang++
 export CC=/usr/bin/clang
 
 # Build instruction
-Edit the CMakeFiles.txt to opint to your OpenCV directorys
+Edit the CMakeFiles.txt to point to your OpenCV directorys
 
 ```
 cd stream_2_png_sequence
@@ -20,11 +22,5 @@ make
 
 For using the webcam
 ```
-./ascii 
+./ascii movie.mp4 render_dir/
 ```
-
-For showing a film stream in ascii
-```
-./ascii film.mp4
-```
-# stream_2_png_sequence
