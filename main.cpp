@@ -177,7 +177,6 @@ We require <render directory> where the PNG sequence will be stored
 int main(const int argc, char **argv)
 {
   Mat image[NR_THREADS];
-  bool running = true;
   VideoCapture cap;
 
   arguments(&cap, argc, argv);
@@ -189,20 +188,25 @@ int main(const int argc, char **argv)
   std::thread threads[NR_THREADS];
   int tot_frames = cap.get(CAP_PROP_FRAME_COUNT);
   int percent_done = 0;
-  while (running)
+  while (1)
   {
 
     //spwan the maximum number of threads
     for (int i=0; i<NR_THREADS; i++){
       cap >> image[i];
-      
-      if (image[i].empty())
-        return 0;
 
+      //When frame is empty wait for current spawned threads to end      
+      if (image[i].empty()){
+        for(int j=0; j<i; j++)
+            threads[j].join();
+        std::cout << "\r" << std::to_string( 100 ) << "% frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::flush;
+        return 0;
+      }
+      
       // takes the small black and white image and maps each pixel to a character and prints it to the terminal
       threads[i] = std::thread(turnImageToAscii, &image[i], argv[2], frame_count);
       percent_done = int(float(frame_count)/float(tot_frames) * 100);
-      std::cout << "\r" << std::to_string( percent_done ) << "% rendering frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::flush;
+      std::cout << "\r" << std::to_string( percent_done ) << "% frame: " << std::to_string(frame_count) << "/" << std::to_string(tot_frames) << std::flush;
       frame_count++;
     }
 
