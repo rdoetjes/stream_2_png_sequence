@@ -9,7 +9,8 @@
 using namespace cv;
 #define TERM_WIDTH 300
 #define TERM_HEIGTH 110
-#define NR_THREADS 4
+
+static int NR_THREADS = 4;
 
 /*
 Desaturares and resizes the image.
@@ -145,9 +146,9 @@ We require <render directory> where the PNG sequence will be stored
 */
 void arguments(VideoCapture *cap, int argc, char **args)
 {
-  if (argc != 3)
+  if (argc < 3)
   {
-    std::cerr << args[0] << " <source video> <render directory>" << std::endl;
+    std::cerr << args[0] << " <source video> <render directory> [thread_count]" << std::endl;
     exit(1);
   }
   
@@ -161,12 +162,17 @@ void arguments(VideoCapture *cap, int argc, char **args)
     exit(1);
   }
 
+  if (argc == 4){
+    NR_THREADS = atoi(args[3]);
+  }
+
   if (cap==nullptr){
     std::cerr << "could not initialize video capture" << std::endl;
     exit(1);
   } else{
     cap->open(args[1]);
   }
+
 }
 
 /*
@@ -176,10 +182,9 @@ We require <render directory> where the PNG sequence will be stored
 */
 int main(const int argc, char **argv)
 {
-  Mat image[NR_THREADS];
   VideoCapture cap;
-
   arguments(&cap, argc, argv);
+  Mat image[NR_THREADS];
   
   if (!cap.isOpened())
     return 1;
